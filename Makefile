@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11
 
 quality: exp7
 
@@ -54,6 +54,9 @@ exp10:
 	. .venv/bin/activate && python experiments/exp_10_tiny_sft_format_hf_adapter.py
 
 sft: exp10
+
+exp11:
+	. .venv/bin/activate && python experiments/exp_11_local_tiny_causal_lm_smoke_test.py
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl
