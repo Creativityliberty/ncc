@@ -79,6 +79,51 @@ def test_redact_recursive():
     assert len(findings) == 2
 
 
+def test_does_not_redact_iso_timestamp():
+    value = "2026-06-27T19:28:54.540493+00:00"
+
+    redacted, findings = redact_string(value, "$.observation.timestamp")
+
+    assert redacted == value
+    assert findings == []
+
+
+def test_does_not_redact_iso_date_as_phone():
+    value = "2026-06-27"
+
+    redacted, findings = redact_string(value, "$.some.date")
+
+    assert redacted == value
+    assert findings == []
+
+
+def test_does_not_redact_decimal_fragment_as_phone():
+    value = "memory_strength=0.8333333333333334"
+
+    redacted, findings = redact_string(value, "$.state_after_summary.memory_strength")
+
+    assert redacted == value
+    assert findings == []
+
+
+def test_still_redacts_real_phone_number():
+    value = "Contact: +33 6 12 34 56 78"
+
+    redacted, findings = redact_string(value, "$.input")
+
+    assert "[REDACTED_PHONE]" in redacted
+    assert any(f.finding_type == "phone" for f in findings)
+
+
+def test_still_redacts_email_and_secret():
+    value = "Email test@example.com token sk-abcdefghijklmnopqrstuvwxyz123456"
+
+    redacted, findings = redact_string(value, "$.input")
+
+    assert "[REDACTED_EMAIL]" in redacted
+    assert "[REDACTED_SECRET]" in redacted
+
+
 def test_quality_gate_passes_clean_example():
     example = base_example()
     result = quality_gate(example, [])

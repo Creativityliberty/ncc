@@ -15,9 +15,38 @@ from ncc.schemas import (
 
 
 EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
-PHONE_RE = re.compile(r"(?:(?:\+|00)\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?){2,5}\d{2,4}")
+PHONE_RE = re.compile(
+    r"(?<![\d.])(?:\+|00)?\d{1,3}?[\s.-]?(?:\(?\d{2,4}\)?[\s.-]?){2,4}\d{2,4}(?![\d.])"
+)
 URL_RE = re.compile(r"https?://[^\s\"']+")
 IP_RE = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
+
+ISO_TIMESTAMP_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$"
+)
+
+ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+FIELD_PATHS_TO_SKIP_REDACTION = [
+    ".timestamp",
+]
+
+def looks_like_phone(match_value: str) -> bool:
+    digits = re.sub(r"\D", "", match_value)
+
+    if len(digits) < 8:
+        return False
+
+    if ISO_DATE_RE.match(match_value):
+        return False
+
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", match_value):
+        return False
+
+    if re.fullmatch(r"\d+\.\d+", match_value):
+        return False
+
+    return True
 
 SECRET_PATTERNS = [
     re.compile(r"\bsk-[A-Za-z0-9_-]{16,}\b"),
@@ -79,13 +108,53 @@ def _preview(value: str, max_len: int = 80) -> str:
     return value[:max_len]
 
 
+def should_skip_redaction(value: str, field_path: str) -> bool:
+    if any(field_path.endswith(path) for path in FIELD_PATHS_TO_SKIP_REDACTION):
+        return True
+
+    if ISO_TIMESTAMP_RE.match(value):
+        return True
+
+    if ISO_DATE_RE.match(value):
+        return True
+
+    return False
+
+
+def redact_phone_values(redacted: str, field_path: str) -> tuple[str, list[RedactionFinding]]:
+    findings: list[RedactionFinding] = []
+
+    def repl(match: re.Match) -> str:
+        value = match.group(0)
+
+        if not looks_like_phone(value):
+            return value
+
+        findings.append(
+            RedactionFinding(
+                field_path=field_path,
+                finding_type="phone",
+                original_preview=_preview(value),
+                replacement=REDACTION_REPLACEMENTS["phone"],
+            )
+        )
+        return REDACTION_REPLACEMENTS["phone"]
+
+    return PHONE_RE.sub(repl, redacted), findings
+
+
 def redact_string(value: str, field_path: str) -> tuple[str, list[RedactionFinding]]:
+    if should_skip_redaction(value, field_path):
+        return value, []
+
     findings: list[RedactionFinding] = []
     redacted = value
 
+    redacted, phone_findings = redact_phone_values(redacted, field_path)
+    findings.extend(phone_findings)
+
     patterns = [
         ("email", EMAIL_RE),
-        ("phone", PHONE_RE),
         ("url", URL_RE),
         ("ip", IP_RE),
     ]
