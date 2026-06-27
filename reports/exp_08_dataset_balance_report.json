@@ -1,0 +1,27 @@
+{
+  "total_examples": 26,
+  "task_counts": {
+    "intent_preservation": 8,
+    "memory_reactivation": 4,
+    "governance_block": 6,
+    "feedback_consolidation": 4,
+    "knowledge_memory_separation": 4
+  },
+  "difficulty_counts": {
+    "easy": 4,
+    "medium": 14,
+    "hard": 8
+  },
+  "action_counts": {
+    "respond": 23,
+    "blocked": 3
+  },
+  "missing_tasks": [
+    "memory_trace_retrieval",
+    "safe_action_selection",
+    "contradiction_handling",
+    "clarification_needed"
+  ],
+  "task_coverage": 0.556,
+  "task_distribution_entropy": 0.972
+}

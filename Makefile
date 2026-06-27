@@ -32,12 +32,15 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8
 
 quality: exp7
 
 exp7:
 	. .venv/bin/activate && python experiments/exp_07_dataset_quality_gates.py
+
+exp8:
+	. .venv/bin/activate && python experiments/exp_08_scenario_generator_balancing.py
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl
