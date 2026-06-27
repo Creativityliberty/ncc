@@ -262,3 +262,45 @@ class DatasetExportReport(BaseModel):
     layer_separation_integrity: float = 0.0
 
     output_files: list[str] = Field(default_factory=list)
+
+
+class RedactionFinding(BaseModel):
+    field_path: str
+    finding_type: str
+    original_preview: str
+    replacement: str
+
+
+class QualityGateResult(BaseModel):
+    passed: bool
+    score: float
+    flags: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+
+
+class DatasetQualityExampleResult(BaseModel):
+    source: dict[str, Any] = Field(default_factory=dict)
+    input_preview: str = ""
+    passed: bool
+    score: float
+    flags: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    redactions: list[RedactionFinding] = Field(default_factory=list)
+
+
+class DatasetQualityReport(BaseModel):
+    dataset_version: str = "ncc-dataset-v0.9"
+    input_examples: int = 0
+    accepted_examples: int = 0
+    rejected_examples: int = 0
+
+    pass_rate: float = 0.0
+    average_quality_score: float = 0.0
+    redacted_findings: int = 0
+
+    pii_findings: int = 0
+    secret_findings: int = 0
+    unsafe_action_findings: int = 0
+    malformed_examples: int = 0
+
+    output_files: list[str] = Field(default_factory=list)

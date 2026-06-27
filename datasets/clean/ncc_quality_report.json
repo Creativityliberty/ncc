@@ -1,0 +1,22 @@
+{
+  "dataset_version": "ncc-dataset-v0.9",
+  "input_examples": 27,
+  "accepted_examples": 27,
+  "rejected_examples": 0,
+  "pass_rate": 1.0,
+  "average_quality_score": 0.95,
+  "redacted_findings": 54,
+  "pii_findings": 54,
+  "secret_findings": 0,
+  "unsafe_action_findings": 0,
+  "malformed_examples": 0,
+  "output_files": [
+    "datasets/clean/ncc_cognitive_dataset.clean.jsonl",
+    "datasets/clean/ncc_dataset_rejected.jsonl",
+    "datasets/clean/ncc_redaction_log.jsonl",
+    "datasets/clean/ncc_sft_dataset.clean.jsonl",
+    "datasets/clean/ncc_multitask_dataset.clean.jsonl",
+    "datasets/clean/ncc_quality_report.json",
+    "reports/exp_07_dataset_quality_gates_report.md"
+  ]
+}
