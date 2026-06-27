@@ -22,9 +22,16 @@ class NCCRuntime:
 
     def step(self, raw: str, write_trace: bool = True) -> NCCTrace:
         self.state.step += 1
+
+        from .feedback import extract_feedback, consolidate_feedback
+        feedback_record = extract_feedback(raw, source_step=self.state.step)
+        if feedback_record is not None:
+            self.state = consolidate_feedback(self.state, feedback_record)
+
         temporal_limit = getattr(self, "temporal_limit", None)
         obs = build_observation(raw, self.state, temporal_limit=temporal_limit)
         current_intent = extract_intent(obs, self.state)
+
         
         # V0.1 — Cumulative Intent Preservation Patch
         if self.state.active_intent is not None:
@@ -35,7 +42,7 @@ class NCCRuntime:
             
         self.state.active_intent = intent
         gap = compute_gap(intent, self.state, user_input=raw)
-        candidates = generate_transformations(intent, gap)
+        candidates = generate_transformations(intent, gap, state=self.state)
         stable = select_stable_output(candidates, gap)
         reasoning = reason(intent, gap, stable, self.state)
         action = select_action(stable, self.state)
@@ -50,12 +57,9 @@ class NCCRuntime:
             action.allowed = False
             action.kind = "blocked"
             action.reason = decision["reason"]
+            from .action import destructive_block_message
             action.payload = {
-                "content": (
-                    "Action bloquée par gouvernance. "
-                    f"Raison : {decision['reason']} "
-                    f"Alternative : {decision['alternative']}"
-                )
+                "content": destructive_block_message(self.state)
             }
 
         feedback = no_feedback()

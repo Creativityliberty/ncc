@@ -25,7 +25,10 @@ exp2c:
 exp3:
 	. .venv/bin/activate && python experiments/exp_03_governance_block.py
 
-experiments: exp exp2 exp2b exp2c exp3
+exp4:
+	. .venv/bin/activate && python experiments/exp_04_feedback_consolidation.py
+
+experiments: exp exp2 exp2b exp2c exp3 exp4
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl

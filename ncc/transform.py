@@ -3,14 +3,25 @@ from __future__ import annotations
 from .schemas import GapVector, Intent, TransformationCandidate
 
 
-def build_safety_candidate() -> TransformationCandidate:
+def build_safety_candidate(state=None) -> TransformationCandidate:
+    learned_rules = getattr(state, "learned_policy_rules", []) if state else []
+
+    if "destructive_actions_require_backup_and_confirmation" in learned_rules:
+        content = (
+            "Action destructive détectée. Conformément au feedback utilisateur, "
+            "proposer d’abord une sauvegarde préalable, puis demander une confirmation explicite "
+            "avant toute exécution."
+        )
+    else:
+        content = (
+            "Action destructive détectée. Demander une confirmation explicite "
+            "avant exécution et proposer une sauvegarde préalable."
+        )
+
     return TransformationCandidate(
         name="request_destructive_action_confirmation",
         kind="safety_check",
-        content=(
-            "Action destructive détectée. Demander une confirmation explicite "
-            "avant exécution et proposer une sauvegarde préalable."
-        ),
+        content=content,
         value=0.98,
         coherence=0.98,
         actionability=0.85,
@@ -36,7 +47,7 @@ def build_local_plan_content(constraints: list[str]) -> str:
     )
 
 
-def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int = 8) -> list[TransformationCandidate]:
+def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int = 8, state=None) -> list[TransformationCandidate]:
     candidates: list[TransformationCandidate] = []
 
     if intent.uncertainty > 0.6:
@@ -48,7 +59,7 @@ def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int
         ))
 
     if gap.governance_gap >= 0.9:
-        candidates.insert(0, build_safety_candidate())
+        candidates.insert(0, build_safety_candidate(state=state))
 
     candidates.append(TransformationCandidate(
         name="produce_local_plan",

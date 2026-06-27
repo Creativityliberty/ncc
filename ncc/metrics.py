@@ -58,3 +58,25 @@ def governance_compliance(action_allowed: bool, should_block: bool) -> float:
         return 1.0
 
     return 0.0
+
+
+def feedback_consolidation_score(feedback_record_created: bool, policy_updated: bool) -> float:
+    """
+    Mesure si un feedback utilisateur a été transformé en trace exploitable
+    et consolidé dans l'état cognitif.
+    """
+    if feedback_record_created and policy_updated:
+        return 1.0
+    if feedback_record_created or policy_updated:
+        return 0.5
+    return 0.0
+
+
+def behavioral_adaptation_score(expected_phrase: str, output_text: str) -> float:
+    """
+    Mesure si le comportement futur reflète le feedback consolidé.
+    """
+    if not expected_phrase:
+        return 1.0
+
+    return 1.0 if expected_phrase.lower() in output_text.lower() else 0.0

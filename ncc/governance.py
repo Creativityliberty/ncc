@@ -13,6 +13,7 @@ DESTRUCTIVE_KEYWORDS = [
     "effacer",
     "trash",
     "vider",
+    "vide",
     "wipe",
     "destroy",
 ]

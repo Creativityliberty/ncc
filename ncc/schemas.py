@@ -7,6 +7,32 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 
 
+class FeedbackRecord(BaseModel):
+    content: str
+    feedback_type: Literal[
+        "correction",
+        "preference",
+        "policy_update",
+        "approval",
+        "rejection",
+        "unknown",
+    ] = "unknown"
+
+    scope: Literal[
+        "global",
+        "task",
+        "safety",
+        "memory",
+        "output",
+    ] = "task"
+
+    derived_constraints: list[str] = Field(default_factory=list)
+    derived_policy_rules: list[str] = Field(default_factory=list)
+
+    source_step: int | None = None
+    salience: float = 0.8
+
+
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -115,6 +141,8 @@ class CognitiveState(BaseModel):
     memory: list[MemoryRecord] = Field(default_factory=list)
     knowledge: list[KnowledgeClaim] = Field(default_factory=list)
     policies: list[PolicyRule] = Field(default_factory=list)
+    feedback_records: list[FeedbackRecord] = Field(default_factory=list)
+    learned_policy_rules: list[str] = Field(default_factory=list)
     active_intent: Intent | None = None
     last_intent: Intent | None = None
     last_gap: GapVector | None = None
