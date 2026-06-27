@@ -72,11 +72,31 @@ def feedback_consolidation_score(feedback_record_created: bool, policy_updated: 
     return 0.0
 
 
-def behavioral_adaptation_score(expected_phrase: str, output_text: str) -> float:
-    """
-    Mesure si le comportement futur reflète le feedback consolidé.
-    """
-    if not expected_phrase:
+def behavioral_adaptation_score(expected_phrase: str, final_action_text: str) -> float:
+    return 1.0 if expected_phrase.lower() in final_action_text.lower() else 0.0
+
+
+def knowledge_memory_separation_score(
+    memory_ok: bool,
+    knowledge_ok: bool,
+    policy_ok: bool,
+    reasoning_not_persisted: bool,
+) -> float:
+    checks = [
+        memory_ok,
+        knowledge_ok,
+        policy_ok,
+        reasoning_not_persisted,
+    ]
+
+    return round(sum(1 for item in checks if item) / len(checks), 3)
+
+
+def layer_purity_score(
+    total_items: int,
+    misplaced_items: int,
+) -> float:
+    if total_items <= 0:
         return 1.0
 
-    return 1.0 if expected_phrase.lower() in output_text.lower() else 0.0
+    return round(1 - (misplaced_items / total_items), 3)

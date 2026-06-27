@@ -7,6 +7,41 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 
 
+class EvidenceRecord(BaseModel):
+    source: str
+    content: str
+    source_step: int | None = None
+    confidence: float = 0.8
+
+
+class KnowledgeRecord(BaseModel):
+    claim: str
+    subject: str | None = None
+    predicate: str | None = None
+    object: str | None = None
+
+    evidence: list[EvidenceRecord] = Field(default_factory=list)
+
+    status: Literal[
+        "active",
+        "superseded",
+        "retracted",
+        "uncertain",
+    ] = "active"
+
+    confidence: float = 0.8
+    tags: list[str] = Field(default_factory=list)
+    source_step: int | None = None
+
+
+class LayerAssignment(BaseModel):
+    memory_items: int = 0
+    knowledge_items: int = 0
+    policy_items: int = 0
+    reasoning_items: int = 0
+    misplaced_items: int = 0
+
+
 class FeedbackRecord(BaseModel):
     content: str
     feedback_type: Literal[
@@ -140,6 +175,7 @@ class CognitiveState(BaseModel):
     context: list[str] = Field(default_factory=list)
     memory: list[MemoryRecord] = Field(default_factory=list)
     knowledge: list[KnowledgeClaim] = Field(default_factory=list)
+    knowledge_records: list[KnowledgeRecord] = Field(default_factory=list)
     policies: list[PolicyRule] = Field(default_factory=list)
     feedback_records: list[FeedbackRecord] = Field(default_factory=list)
     learned_policy_rules: list[str] = Field(default_factory=list)
@@ -159,4 +195,7 @@ class NCCTrace(BaseModel):
     action: Action
     feedback: Feedback
     state_after_summary: dict[str, Any]
+    knowledge_records: list[dict] = Field(default_factory=list)
+    feedback_records: list[dict] = Field(default_factory=list)
+    learned_policy_rules: list[str] = Field(default_factory=list)
     timestamp: str = Field(default_factory=now_iso)

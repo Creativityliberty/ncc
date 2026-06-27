@@ -23,6 +23,16 @@ class NCCRuntime:
     def step(self, raw: str, write_trace: bool = True) -> NCCTrace:
         self.state.step += 1
 
+        from ncc.knowledge import extract_knowledge, consolidate_knowledge
+        
+        knowledge_record = extract_knowledge(
+            raw,
+            source_step=self.state.step,
+        )
+
+        if knowledge_record is not None:
+            self.state = consolidate_knowledge(self.state, knowledge_record)
+
         from .feedback import extract_feedback, consolidate_feedback
         feedback_record = extract_feedback(raw, source_step=self.state.step)
         if feedback_record is not None:
@@ -129,7 +139,13 @@ class NCCRuntime:
                 "knowledge_size": len(self.state.knowledge),
                 "policy_size": len(self.state.policies),
                 "memory_strength": 0.0,
+                "knowledge_records_size": len(self.state.knowledge_records),
+                "feedback_records_size": len(self.state.feedback_records),
+                "learned_policy_rules_size": len(self.state.learned_policy_rules),
             },
+            knowledge_records=[record.model_dump() for record in self.state.knowledge_records],
+            feedback_records=[record.model_dump() for record in self.state.feedback_records],
+            learned_policy_rules=self.state.learned_policy_rules,
         )
         if write_trace:
             append_trace(self.trace_path, trace)
