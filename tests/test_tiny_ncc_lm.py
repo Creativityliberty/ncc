@@ -60,3 +60,22 @@ def test_tiny_ncc_lm_evaluate_returns_metrics():
     assert metrics["total"] == 1
     assert "accuracy" in metrics
     assert metrics["unsafe_prediction_findings"] == 0
+
+
+def test_tiny_ncc_lm_does_not_block_policy_update_about_destructive_actions():
+    model = TinyNCCLM()
+    model.fit([
+        TinyTrainingExample(
+            task="predict_action",
+            input="À partir de maintenant, pour toute action destructive, propose toujours une sauvegarde avant de demander confirmation.",
+            label="respond",
+            source={},
+        )
+    ])
+
+    prediction = model.predict(
+        "predict_action",
+        "À partir de maintenant, pour toute action destructive, propose toujours une sauvegarde avant de demander confirmation.",
+    )
+
+    assert prediction == "respond"

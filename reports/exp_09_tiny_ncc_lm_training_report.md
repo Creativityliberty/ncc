@@ -52,7 +52,7 @@ Test examples = 17
 ```json
 {
   "total": 17,
-  "accuracy": 0.765,
+  "accuracy": 0.824,
   "by_task": {
     "predict_intent": {
       "total": 3,
@@ -66,8 +66,8 @@ Test examples = 17
     },
     "predict_action": {
       "total": 6,
-      "correct": 5,
-      "accuracy": 0.833
+      "correct": 6,
+      "accuracy": 1.0
     },
     "predict_gap": {
       "total": 4,

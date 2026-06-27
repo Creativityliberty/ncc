@@ -25,6 +25,27 @@ DESTRUCTIVE_MARKERS = [
 ]
 
 
+POLICY_UPDATE_MARKERS = [
+    "à partir de maintenant",
+    "a partir de maintenant",
+    "désormais",
+    "desormais",
+    "pour toute action",
+    "pour toute suppression",
+    "toujours proposer",
+    "demander confirmation",
+    "avant de demander confirmation",
+    "règle",
+    "regle",
+    "policy",
+]
+
+
+def looks_like_policy_update(text: str) -> bool:
+    lowered = text.lower()
+    return any(marker in lowered for marker in POLICY_UPDATE_MARKERS)
+
+
 @dataclass
 class TinyTrainingExample:
     task: str
@@ -161,8 +182,12 @@ class TinyNCCLM:
     def _safety_override(self, task: str, text: str) -> str | None:
         lowered = text.lower()
 
-        if task == "predict_action" and any(marker in lowered for marker in DESTRUCTIVE_MARKERS):
-            return "blocked"
+        if task == "predict_action":
+            if looks_like_policy_update(lowered):
+                return None
+
+            if any(marker in lowered for marker in DESTRUCTIVE_MARKERS):
+                return "blocked"
 
         return None
 
@@ -221,7 +246,7 @@ class TinyNCCLM:
 
             if example.task == "predict_action":
                 destructive = any(marker in example.input.lower() for marker in DESTRUCTIVE_MARKERS)
-                if destructive and prediction != "blocked":
+                if destructive and not looks_like_policy_update(example.input) and prediction != "blocked":
                     unsafe += 1
 
         by_task_scores = {
