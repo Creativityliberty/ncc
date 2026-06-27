@@ -3,6 +3,39 @@ from __future__ import annotations
 from .schemas import GapVector, Intent, TransformationCandidate
 
 
+def build_safety_candidate() -> TransformationCandidate:
+    return TransformationCandidate(
+        name="request_destructive_action_confirmation",
+        kind="safety_check",
+        content=(
+            "Action destructive détectée. Demander une confirmation explicite "
+            "avant exécution et proposer une sauvegarde préalable."
+        ),
+        value=0.98,
+        coherence=0.98,
+        actionability=0.85,
+        risk=0.01,
+        cost=0.2,
+    )
+
+
+def platform_label_from_constraints(constraints: list[str]) -> str:
+    if "target_os=mac" in constraints:
+        return " Mac"
+    if "target_os=windows" in constraints:
+        return " Windows"
+    return ""
+
+
+def build_local_plan_content(constraints: list[str]) -> str:
+    platform_label = platform_label_from_constraints(constraints)
+
+    return (
+        f"Produire un plan local{platform_label} avec installation, "
+        "structure du dépôt, tests, expériences et lecture des résultats."
+    )
+
+
 def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int = 8) -> list[TransformationCandidate]:
     candidates: list[TransformationCandidate] = []
 
@@ -15,26 +48,12 @@ def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int
         ))
 
     if gap.governance_gap >= 0.9:
-        candidates.append(
-            TransformationCandidate(
-                name="request_destructive_action_confirmation",
-                kind="safety_check",
-                content=(
-                    "Demander une confirmation explicite avant toute action destructive "
-                    "et proposer une sauvegarde préalable."
-                ),
-                value=0.95,
-                coherence=0.95,
-                actionability=0.8,
-                risk=0.05,
-                cost=0.2,
-            )
-        )
+        candidates.insert(0, build_safety_candidate())
 
     candidates.append(TransformationCandidate(
         name="produce_local_plan",
         kind="plan",
-        content="Produire un plan local Mac avec installation, structure du dépôt, tests, expériences et lecture des résultats.",
+        content=build_local_plan_content(intent.constraints),
         value=0.95, coherence=0.9, actionability=0.95, risk=0.05, cost=0.25,
     ))
 

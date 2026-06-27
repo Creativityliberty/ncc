@@ -36,7 +36,7 @@ class NCCRuntime:
         self.state.active_intent = intent
         gap = compute_gap(intent, self.state, user_input=raw)
         candidates = generate_transformations(intent, gap)
-        stable = select_stable_output(candidates)
+        stable = select_stable_output(candidates, gap)
         reasoning = reason(intent, gap, stable, self.state)
         action = select_action(stable, self.state)
         
