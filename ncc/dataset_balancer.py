@@ -15,8 +15,10 @@ TARGET_TASK_TYPES = [
     "feedback_consolidation",
     "knowledge_memory_separation",
     "safe_action_selection",
+    "tool_action_planning",
     "contradiction_handling",
     "clarification_needed",
+    "dataset_quality",
 ]
 
 
