@@ -1,79 +1,102 @@
-from __future__ import annotations
-
 from pathlib import Path
+from statistics import mean
 
 from ncc.runtime import NCCRuntime
-from ncc.schemas import Observation
+from ncc.metrics import delayed_intent_reactivation
+from ncc.trace import JSONLTraceWriter
+
+
+REPORTS_DIR = Path("reports")
+REPORTS_DIR.mkdir(exist_ok=True)
+
+TRACE_PATH = REPORTS_DIR / "exp_02_memory_reactivation_traces.jsonl"
+REPORT_PATH = REPORTS_DIR / "exp_02_memory_reactivation_report.md"
 
 
 SCENARIO = [
-    # 1. On donne un contexte/objectif initial très clair avec des contraintes
-    "Chef, on doit générer le rapport final en format Markdown et toujours l'enregistrer dans reports/final.md.",
-    # 2. On change complètement de sujet pour polluer la mémoire à court terme
-    "Au fait, tu as pensé à lancer les tests de performance sur le module de gap ?",
-    # 3. On continue sur le sujet poubelle
-    "Les tests de perf montrent qu'on consomme trop de CPU, il faut optimiser ça.",
-    # 4. On revient à l'action finale de manière très ambiguë
-    "Bon c'est fait. Génère le livrable maintenant."
+    "Chef, on veut créer une première version locale NCC pour Mac, local-first.",
+    "Ajoute les tests unitaires.",
+    "Mets les traces JSONL pour produire un dataset plus tard.",
+    "Prépare aussi un rapport de résultats.",
+    "Maintenant prépare l’installation.",
 ]
 
-def memory_reactivation_score(trace) -> float:
-    \"\"\"
-    Score expérimental : le système s'est-il souvenu qu'un "livrable" 
-    dans ce contexte précis signifie "un rapport final en Markdown dans reports/final.md" ?
-    \"\"\"
-    score = 0.0
-    constraints = trace.intent.constraints
-    if "produce_markdown_assets" in constraints:
-        score += 0.5
-    # Si le moteur était très intelligent, il extrairait aussi le path exact
-    # Pour l'instant on check au moins s'il a gardé le concept "markdown"
-    
-    # On ajoute 0.5 si le goal parle du rapport final
-    if "rapport" in trace.intent.goal.lower():
-        score += 0.5
-        
-    return score
+REQUIRED_OLD_CONSTRAINTS = [
+    "target_os=mac",
+    "local_first",
+]
 
-def main() -> None:
-    reports = Path("reports")
-    reports.mkdir(exist_ok=True)
-    rt = NCCRuntime(trace_path="reports/exp_02_traces.jsonl")
+
+def main():
+    runtime = NCCRuntime()
+    writer = JSONLTraceWriter(TRACE_PATH)
 
     scores = []
-    for step_idx, msg in enumerate(SCENARIO):
-        trace = rt.step(msg)
-        
-        # On n'évalue la réactivation que sur le tout dernier tour
-        if step_idx == len(SCENARIO) - 1:
-            score = memory_reactivation_score(trace)
+
+    for step, user_input in enumerate(SCENARIO, start=1):
+        result = runtime.step(user_input)
+
+        writer.write({
+            "experiment": "EXP-02 Memory Reactivation",
+            "step": step,
+            "input": user_input,
+            "observation": result.observation.model_dump(),
+            "intent": result.intent.model_dump(),
+            "gap": result.gap.model_dump(),
+            "stable_output": result.stable_output.model_dump(),
+            "reasoning": result.reasoning.model_dump(),
+            "action": result.action.model_dump(),
+            "state_after_summary": result.state_after_summary,
+        })
+
+        if step == 5:
+            score = delayed_intent_reactivation(
+                REQUIRED_OLD_CONSTRAINTS,
+                result.intent.constraints,
+            )
             scores.append(score)
 
-    # Note: comme on ne score que la dernière étape, avg = la note finale
-    avg = scores[0] if scores else 0.0
-    verdict = "OK" if avg >= 0.70 else "À améliorer"
+    avg_score = round(mean(scores), 3) if scores else 0.0
+    verdict = "OK" if avg_score >= 0.75 else "À améliorer"
 
-    report = f\"\"\"# Rapport expérience 02 — Réactivation de la mémoire
+    report = f"""# EXP-02 — Memory Reactivation Report
 
 ## Objectif
 
-Tester si une intention ou contrainte déclarée loin dans le passé peut être réactivée lorsque l'utilisateur y fait référence de manière implicite.
+Tester si NCC-V0.2 peut réactiver des contraintes anciennes sans que l’utilisateur les répète explicitement.
 
-## Score final de réactivation
+## Contraintes anciennes attendues
 
-{avg:.3f}
+```text
+{REQUIRED_OLD_CONSTRAINTS}
+```
 
-## Verdict
+## Score DIR
 
-{verdict}
+```text
+DIR = {avg_score}
+Verdict = {verdict}
+```
 
-## Fichiers produits
+## Interprétation
 
-- `reports/exp_02_traces.jsonl`
-- `reports/exp_02_memory_reactivation_report.md`
-\"\"\"
-    (reports / "exp_02_memory_reactivation_report.md").write_text(report, encoding="utf-8")
-    print(report)
+Si DIR est supérieur ou égal à 0.75, le système réactive correctement les contraintes anciennes.
+
+Si DIR est inférieur à 0.75, cela signifie que la mémoire ou l’intention active ne conserve pas suffisamment les contraintes nécessaires à l’action tardive.
+
+## Trace
+
+```text
+{TRACE_PATH}
+```
+
+"""
+
+    REPORT_PATH.write_text(report, encoding="utf-8")
+
+    print(f"DIR: {avg_score}")
+    print(f"Verdict: {verdict}")
+    print(f"Report written to: {REPORT_PATH}")
 
 
 if __name__ == "__main__":

@@ -28,3 +28,33 @@ def gap_reduction(initial: GapVector, current: GapVector) -> float:
     if initial.norm == 0:
         return 0.0
     return round(1 - (current.norm / initial.norm), 3)
+
+
+def delayed_intent_reactivation(required_constraints: list[str], current_constraints: list[str]) -> float:
+    """
+    Mesure si les contraintes anciennes nécessaires sont réactivées
+    dans une étape tardive où elles ne sont pas répétées explicitement.
+    """
+    if not required_constraints:
+        return 1.0
+
+    required = set(required_constraints)
+    current = set(current_constraints)
+
+    return round(len(required.intersection(current)) / len(required), 3)
+
+
+def governance_compliance(action_allowed: bool, should_block: bool) -> float:
+    """
+    Mesure simple de conformité de gouvernance.
+    - Si l'action devait être bloquée et qu'elle est bloquée : 1.0
+    - Si l'action ne devait pas être bloquée et qu'elle est autorisée : 1.0
+    - Sinon : 0.0
+    """
+    if should_block and not action_allowed:
+        return 1.0
+
+    if not should_block and action_allowed:
+        return 1.0
+
+    return 0.0

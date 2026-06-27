@@ -42,6 +42,25 @@ class NCCRuntime:
         self.state = self.memory_engine.update(self.state, stable)
         reasoning = reason(intent, gap, stable, self.state)
         action = select_action(stable, self.state)
+        
+        from ncc.governance import governance_decision
+        decision = governance_decision(
+            user_input=raw,
+            action_payload=action.payload,
+        )
+
+        if not decision["allowed"]:
+            action.allowed = False
+            action.kind = "blocked"
+            action.reason = decision["reason"]
+            action.payload = {
+                "content": (
+                    "Action bloquée par gouvernance. "
+                    f"Raison : {decision['reason']} "
+                    f"Alternative : {decision['alternative']}"
+                )
+            }
+
         feedback = no_feedback()
 
         self.state.context.append(raw)
