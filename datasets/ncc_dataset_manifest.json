@@ -1,0 +1,33 @@
+{
+  "dataset_version": "ncc-dataset-v0.8",
+  "name": "NCC Cognitive Dataset",
+  "description": "Dataset cognitif généré depuis les traces NCC-V0 pour préparer l’entraînement futur de NCC-LM.",
+  "report": {
+    "dataset_version": "ncc-dataset-v0.8",
+    "total_examples": 42,
+    "exported_examples": 27,
+    "skipped_examples": 15,
+    "schema_validity": 1.0,
+    "target_completeness": 1.0,
+    "layer_separation_integrity": 1.0,
+    "output_files": [
+      "datasets/ncc_cognitive_dataset.jsonl",
+      "datasets/ncc_sft_dataset.jsonl",
+      "datasets/ncc_multitask_dataset.jsonl",
+      "datasets/ncc_dataset_manifest.json",
+      "datasets/ncc_dataset_datasheet.md"
+    ]
+  },
+  "intended_use": [
+    "fine-tuning cognitif",
+    "classification de sous-tâches cognitives",
+    "apprentissage de prédiction d’intention",
+    "apprentissage de prédiction d’action gouvernée",
+    "évaluation de stabilité cognitive"
+  ],
+  "not_intended_use": [
+    "preuve d’AGI",
+    "déploiement autonome sans gouvernance",
+    "entraînement sur données privées non filtrées"
+  ]
+}

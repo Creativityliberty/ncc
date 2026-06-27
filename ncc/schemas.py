@@ -199,3 +199,66 @@ class NCCTrace(BaseModel):
     feedback_records: list[dict] = Field(default_factory=list)
     learned_policy_rules: list[str] = Field(default_factory=list)
     timestamp: str = Field(default_factory=now_iso)
+
+
+class DatasetSource(BaseModel):
+    experiment: str
+    step: int
+    trace_file: str | None = None
+
+
+class CognitiveDatasetLabels(BaseModel):
+    task_type: str = "cognitive_cycle"
+
+    has_intent: bool = False
+    has_gap: bool = False
+    has_memory: bool = False
+    has_knowledge: bool = False
+    has_policy: bool = False
+    has_governance: bool = False
+    has_feedback: bool = False
+
+    action_allowed: bool | None = None
+    action_kind: str | None = None
+
+    reactivation_source: dict[str, str] = Field(default_factory=dict)
+
+    quality_flags: list[str] = Field(default_factory=list)
+
+
+class CognitiveDatasetExample(BaseModel):
+    dataset_version: str = "ncc-dataset-v0.8"
+
+    source: DatasetSource
+
+    input: str
+
+    observation: dict[str, Any] = Field(default_factory=dict)
+    intent: dict[str, Any] = Field(default_factory=dict)
+    gap: dict[str, Any] = Field(default_factory=dict)
+    stable_output: dict[str, Any] = Field(default_factory=dict)
+    reasoning: dict[str, Any] = Field(default_factory=dict)
+    action: dict[str, Any] = Field(default_factory=dict)
+
+    state_after_summary: dict[str, Any] = Field(default_factory=dict)
+
+    knowledge_records: list[dict[str, Any]] = Field(default_factory=list)
+    feedback_records: list[dict[str, Any]] = Field(default_factory=list)
+    learned_policy_rules: list[str] = Field(default_factory=list)
+
+    labels: CognitiveDatasetLabels
+
+    target: dict[str, Any] = Field(default_factory=dict)
+
+
+class DatasetExportReport(BaseModel):
+    dataset_version: str = "ncc-dataset-v0.8"
+    total_examples: int = 0
+    exported_examples: int = 0
+    skipped_examples: int = 0
+
+    schema_validity: float = 0.0
+    target_completeness: float = 0.0
+    layer_separation_integrity: float = 0.0
+
+    output_files: list[str] = Field(default_factory=list)

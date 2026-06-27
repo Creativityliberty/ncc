@@ -27,10 +27,12 @@ exp3:
 
 exp4:
 	. .venv/bin/activate && python experiments/exp_04_feedback_consolidation.py
-exp5:
-	. .venv/bin/activate && python experiments/exp_05_knowledge_memory_separation.py
+exp6:
+	. .venv/bin/activate && python experiments/exp_06_cognitive_dataset_export.py
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5
+dataset: exp6
+
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl
