@@ -1,0 +1,22 @@
+{
+  "accepted_examples": 27,
+  "conversation_examples": 27,
+  "dataset_version": "ncc-sft-v0.13",
+  "format_validity": 1.0,
+  "hf_text_examples": 27,
+  "input_examples": 27,
+  "output_files": [
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_instruction.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_conversations.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_hf_text.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_train.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_val.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_test.jsonl",
+    "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/sft/ncc_sft_rejected.jsonl"
+  ],
+  "rejected_examples": 0,
+  "source_dataset": "/Users/NUMTEMA/Downloads/ncc-v0-mac-starter.zip_1/ncc-v0-mac-starter/datasets/clean/ncc_cognitive_dataset.clean.jsonl",
+  "test_examples": 5,
+  "train_examples": 18,
+  "val_examples": 4
+}
