@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13
 
 quality: exp7
 
@@ -60,6 +60,9 @@ exp11:
 
 exp12:
 	. .venv/bin/activate && python experiments/exp_12_generation_evaluation_harness.py
+
+exp13:
+	. .venv/bin/activate && python experiments/exp_13_base_vs_finetuned_model_comparison.py
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl
