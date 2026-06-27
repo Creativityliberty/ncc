@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9
 
 quality: exp7
 
@@ -41,6 +41,14 @@ exp7:
 
 exp8:
 	. .venv/bin/activate && python experiments/exp_08_scenario_generator_balancing.py
+
+exp8b:
+	. .venv/bin/activate && python experiments/exp_08b_runtime_alignment_hotfix.py
+
+exp9:
+	. .venv/bin/activate && python experiments/exp_09_tiny_ncc_lm_training_dry_run.py
+
+train-dry-run: exp9
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl

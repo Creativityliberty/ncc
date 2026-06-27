@@ -107,7 +107,7 @@ class GapVector(BaseModel):
 
 class TransformationCandidate(BaseModel):
     name: str
-    kind: Literal["answer", "clarify", "plan", "code", "test", "refuse", "memory", "policy", "safety_check"]
+    kind: Literal["answer", "clarify", "plan", "code", "test", "refuse", "memory", "policy", "safety_check", "clarification", "safe_action_plan"]
     content: str
     value: float = 0.0
     coherence: float = 0.0
@@ -158,7 +158,7 @@ class ReasoningState(BaseModel):
 
 
 class Action(BaseModel):
-    kind: Literal["respond", "ask_clarification", "write_file", "run_test", "refuse", "no_op"] = "respond"
+    kind: Literal["respond", "ask_clarification", "write_file", "run_test", "refuse", "no_op", "clarify", "blocked"] = "respond"
     payload: dict[str, Any] = Field(default_factory=dict)
     allowed: bool = True
     reason: str = ""

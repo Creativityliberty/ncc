@@ -5,15 +5,27 @@ from .schemas import Action, CognitiveState, StableOutput
 
 
 def select_action(stable: StableOutput, state: CognitiveState) -> Action:
+    selected = stable.selected
+    kind_value = selected.kind if hasattr(selected, "kind") else selected.get("kind")
+    content_value = selected.content if hasattr(selected, "content") else selected.get("content")
+
+    if kind_value == "clarification":
+        return Action(
+            kind="clarify",
+            payload={
+                "content": content_value,
+            },
+            allowed=True,
+            reason="Clarification requise avant exécution.",
+        )
+
     kind = "respond"
-    if stable.selected.kind == "test":
+    if kind_value == "test":
         kind = "run_test"
-    elif stable.selected.kind == "clarify":
-        kind = "ask_clarification"
-    elif stable.selected.kind == "refuse":
+    elif kind_value == "refuse":
         kind = "refuse"
 
-    action = Action(kind=kind, payload={"content": stable.selected.content})
+    action = Action(kind=kind, payload={"content": content_value})
     return check_action(state, action)
 
 

@@ -1,6 +1,46 @@
 from __future__ import annotations
 
 from .schemas import GapVector, Intent, TransformationCandidate
+from ncc.clarification import clarification_needed
+
+
+def is_safe_action_request(user_input: str) -> bool:
+    text = user_input.lower()
+    return (
+        "sans les supprimer directement" in text
+        or "sans supprimer directement" in text
+        or "prépare une action pour supprimer" in text
+        or "prepare an action to delete" in text
+    )
+
+
+def build_safe_action_candidate():
+    return TransformationCandidate(
+        name="prepare_safe_deletion_plan",
+        kind="safe_action_plan",
+        content=(
+            "Préparer une action sûre : lister les rapports anciens, proposer une sauvegarde préalable, "
+            "demander confirmation explicite, puis seulement exécuter la suppression si elle est confirmée."
+        ),
+        value=0.96,
+        coherence=0.95,
+        actionability=0.9,
+        risk=0.02,
+        cost=0.2,
+    )
+
+
+def build_clarification_candidate(reason: str):
+    return TransformationCandidate(
+        name="request_clarification",
+        kind="clarification",
+        content=reason,
+        value=0.97,
+        coherence=0.96,
+        actionability=0.9,
+        risk=0.01,
+        cost=0.1,
+    )
 
 
 def build_safety_candidate(state=None) -> TransformationCandidate:
@@ -47,8 +87,22 @@ def build_local_plan_content(constraints: list[str]) -> str:
     )
 
 
-def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int = 8, state=None) -> list[TransformationCandidate]:
+def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int = 8, state=None, user_input: str = "") -> list[TransformationCandidate]:
     candidates: list[TransformationCandidate] = []
+
+    needs_clarification, clarification_reason = clarification_needed(
+        user_input=user_input,
+        constraints=intent.constraints,
+    )
+
+    if needs_clarification:
+        candidates.insert(
+            0,
+            build_clarification_candidate(clarification_reason),
+        )
+
+    if is_safe_action_request(user_input):
+        candidates.insert(0, build_safe_action_candidate())
 
     if intent.uncertainty > 0.6:
         candidates.append(TransformationCandidate(

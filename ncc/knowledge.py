@@ -76,8 +76,15 @@ def extract_knowledge(
     )
 
 
+from ncc.knowledge_revision import find_conflicting_claims
+
 def consolidate_knowledge(state, knowledge_record: KnowledgeRecord):
     existing_claims = {item.claim for item in state.knowledge_records}
+
+    conflicts = find_conflicting_claims(state, knowledge_record.claim)
+    if conflicts:
+        for c in conflicts:
+            c.status = "contradicted"
 
     if knowledge_record.claim not in existing_claims:
         state.knowledge_records.append(knowledge_record)

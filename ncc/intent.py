@@ -70,6 +70,8 @@ def extract_intent(obs: Observation, state: CognitiveState) -> Intent:
         constraints.append("target_os=mac")
     if "windows" in text or "wsl" in text or "powershell" in text:
         constraints.append("target_os=windows")
+    if "wsl2" in text:
+        constraints.append("wsl2")
 
     if "local" in text or "localement" in text:
         constraints.append("local_first")

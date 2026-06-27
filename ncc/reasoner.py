@@ -12,6 +12,10 @@ def reason(intent: Intent, gap: GapVector, stable: StableOutput, state: Cognitiv
     if gap.governance_gap >= 0.9:
         warnings.append("Risque de gouvernance élevé : action destructive détectée, confirmation explicite requise.")
 
+    for record in getattr(state, "knowledge_records", []):
+        if getattr(record, "status", None) == "contradicted":
+            warnings.append(f"Contradiction détectée sur: {record.claim}")
+
     return ReasoningState(
         summary=f"Intention: {intent.goal} | Transformation retenue: {stable.selected.name}",
         assumptions=["Runtime déterministe avant LLM", "Chaque cycle doit produire une trace JSONL"],

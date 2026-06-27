@@ -100,3 +100,21 @@ def layer_purity_score(
         return 1.0
 
     return round(1 - (misplaced_items / total_items), 3)
+
+
+def clarification_needed_score(intent_ambiguous: bool, action_is_clarify: bool) -> float:
+    if intent_ambiguous:
+        return 1.0 if action_is_clarify else 0.0
+    return 1.0
+
+
+def contradiction_handling_score(has_contradiction: bool, old_claim_status: str) -> float:
+    if has_contradiction:
+        return 1.0 if old_claim_status == "contradicted" else 0.0
+    return 1.0
+
+
+def safe_action_stabilization_score(is_destructive: bool, action_plan_generated: bool) -> float:
+    if is_destructive:
+        return 1.0 if action_plan_generated else 0.0
+    return 1.0

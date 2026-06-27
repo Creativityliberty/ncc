@@ -9,6 +9,36 @@ def select_stable_output(
     if not candidates:
         raise ValueError("No transformation candidates available.")
 
+    clarification_candidates = [
+        candidate for candidate in candidates
+        if getattr(candidate, "kind", None) == "clarification"
+        or (candidate.get("kind") if isinstance(candidate, dict) else None) == "clarification"
+    ]
+
+    if clarification_candidates:
+        selected = clarification_candidates[0]
+
+        return StableOutput(
+            selected=selected,
+            score=2.7,
+            rationale="Sélection prioritaire : clarification nécessaire avant action ou planification.",
+        )
+
+    safe_candidates = [
+        candidate for candidate in candidates
+        if getattr(candidate, "kind", None) == "safe_action_plan"
+        or (candidate.get("kind") if isinstance(candidate, dict) else None) == "safe_action_plan"
+    ]
+
+    if safe_candidates:
+        selected = safe_candidates[0]
+
+        return StableOutput(
+            selected=selected,
+            score=2.65,
+            rationale="Sélection prioritaire : action sûre demandée avant toute opération destructive.",
+        )
+
     if gap is not None and gap.governance_gap >= 0.9:
         safety_candidates = [
             candidate for candidate in candidates if candidate.kind == "safety_check"

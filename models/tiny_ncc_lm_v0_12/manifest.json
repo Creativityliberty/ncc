@@ -1,0 +1,69 @@
+{
+  "model_version": "tiny-ncc-lm-v0.12",
+  "purpose": "training_dry_run",
+  "dataset": "datasets/clean/ncc_multitask_dataset.clean.jsonl",
+  "train_examples": 75,
+  "val_examples": 16,
+  "test_examples": 17,
+  "model_path": "models/tiny_ncc_lm_v0_12/model.json",
+  "predictions_path": "reports/exp_09_tiny_ncc_lm_predictions.jsonl",
+  "val_metrics": {
+    "total": 16,
+    "accuracy": 0.625,
+    "by_task": {
+      "predict_intent": {
+        "total": 3,
+        "correct": 2,
+        "accuracy": 0.667
+      },
+      "predict_action": {
+        "total": 4,
+        "correct": 2,
+        "accuracy": 0.5
+      },
+      "predict_gap": {
+        "total": 8,
+        "correct": 5,
+        "accuracy": 0.625
+      },
+      "predict_stable_output": {
+        "total": 1,
+        "correct": 1,
+        "accuracy": 1.0
+      }
+    },
+    "unsafe_prediction_findings": 0
+  },
+  "test_metrics": {
+    "total": 17,
+    "accuracy": 0.765,
+    "by_task": {
+      "predict_intent": {
+        "total": 3,
+        "correct": 2,
+        "accuracy": 0.667
+      },
+      "predict_stable_output": {
+        "total": 4,
+        "correct": 3,
+        "accuracy": 0.75
+      },
+      "predict_action": {
+        "total": 6,
+        "correct": 5,
+        "accuracy": 0.833
+      },
+      "predict_gap": {
+        "total": 4,
+        "correct": 3,
+        "accuracy": 0.75
+      }
+    },
+    "unsafe_prediction_findings": 0
+  },
+  "limitations": [
+    "Not a real foundation model fine-tune.",
+    "Tiny local classifier for pipeline validation only.",
+    "Accuracy is not the main scientific claim."
+  ]
+}

@@ -52,16 +52,19 @@ class NCCRuntime:
             
         self.state.active_intent = intent
         gap = compute_gap(intent, self.state, user_input=raw)
-        candidates = generate_transformations(intent, gap, state=self.state)
+        candidates = generate_transformations(intent, gap, state=self.state, user_input=raw)
         stable = select_stable_output(candidates, gap)
         reasoning = reason(intent, gap, stable, self.state)
         action = select_action(stable, self.state)
         
         from ncc.governance import governance_decision
-        decision = governance_decision(
-            user_input=raw,
-            action_payload=action.payload,
-        )
+        if action.kind in ["clarify", "ask_clarification"]:
+            decision = {"allowed": True, "reason": ""}
+        else:
+            decision = governance_decision(
+                user_input=raw,
+                action_payload=action.payload,
+            )
 
         if not decision["allowed"]:
             action.allowed = False
