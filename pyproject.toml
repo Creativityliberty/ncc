@@ -1,0 +1,25 @@
+[project]
+name = "ncc-v0"
+version = "0.1.0"
+description = "Nümtema Cognitive Core V0 — local cognitive runtime for intent, memory, transformation and action."
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.7",
+  "numpy>=1.26",
+  "typer>=0.12",
+  "rich>=13.7"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+ncc = "ncc.cli:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["ncc*"]
+exclude = ["data*", "reports*", "tests*", "experiments*", "docs*", "scripts*"]

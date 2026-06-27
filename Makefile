@@ -19,10 +19,13 @@ exp2:
 exp2b:
 	. .venv/bin/activate && python experiments/exp_02b_memory_source_attribution.py
 
+exp2c:
+	. .venv/bin/activate && python experiments/exp_02c_pure_memory_reactivation.py
+
 exp3:
 	. .venv/bin/activate && python experiments/exp_03_governance_block.py
 
-experiments: exp exp2 exp2b exp3
+experiments: exp exp2 exp2b exp2c exp3
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl

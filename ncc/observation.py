@@ -1,15 +1,36 @@
 from __future__ import annotations
 
-from .schemas import CognitiveState, Observation
+from ncc.memory import MemoryStore
+from ncc.schemas import CognitiveState, Observation
 
 
-def build_observation(raw: str, state: CognitiveState) -> Observation:
+def build_observation(
+    raw: str, state: CognitiveState, temporal_limit: int | None = None
+) -> Observation:
     spatial = [raw.strip()]
-    temporal = state.context[-5:]
+    temporal_context = state.context
 
-    memorial = []
-    for trace in state.memory[-10:]:
-        if any(word.lower() in trace.content.lower() for word in raw.split()[:8]):
-            memorial.append(trace.content)
+    if temporal_limit is not None:
+        if temporal_limit == 0:
+            temporal_context = []
+        else:
+            temporal_context = temporal_context[-temporal_limit:]
 
-    return Observation(raw=raw, spatial=spatial, temporal=temporal, memorial=memorial)
+    memory_store = MemoryStore(getattr(state, "memory", []))
+    retrieved_memory = memory_store.search(raw, limit=3)
+
+    memorial = [
+        {
+            "event_type": record.event_type,
+            "content": record.content,
+            "constraints": record.constraints,
+            "tags": record.tags,
+            "salience": record.salience,
+            "source_step": record.source_step,
+        }
+        for record in retrieved_memory
+    ]
+
+    return Observation(
+        raw=raw, spatial=spatial, temporal=temporal_context, memorial=memorial
+    )

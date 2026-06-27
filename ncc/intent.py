@@ -66,8 +66,11 @@ def extract_intent(obs: Observation, state: CognitiveState) -> Intent:
     text = obs.raw.lower()
     constraints: list[str] = []
 
-    if "mac" in text:
+    if "mac" in text or "macos" in text or "os x" in text:
         constraints.append("target_os=mac")
+    if "windows" in text or "wsl" in text or "powershell" in text:
+        constraints.append("target_os=windows")
+
     if "local" in text or "localement" in text:
         constraints.append("local_first")
     if "md" in text or "markdown" in text:
@@ -87,13 +90,20 @@ def extract_intent(obs: Observation, state: CognitiveState) -> Intent:
     horizon = "medium" if any(k in text for k in ["projet", "modèle", "modele", "ncc", "dataset"]) else "short"
     uncertainty = 0.2 if constraints else 0.45
 
-    goal = "Construire une première version locale NCC-V0 pour Mac avec installation, tests, traces et documents d’interprétation."
+    if "mac" in text or "macos" in text:
+        platform_part = " pour Mac"
+    elif "windows" in text:
+        platform_part = " pour Windows"
+    else:
+        platform_part = ""
+
+    goal = f"Construire une première version locale NCC-V0{platform_part} avec installation, tests, traces et documents d’interprétation."
+
     if "modèle" in text or "modele" in text:
         goal = "Préparer le chemin local vers NCC-LM, un modèle de langage centré sur l’intention."
     elif "oublie" in text and "windows" in text:
         goal = "Construire une version locale NCC-V0 pour Windows."
-        constraints.append("target_os=windows")
-        # On peut aussi filtrer les vieilles contraintes lors du merge si on voulait, 
-        # mais ici on va modifier merge_intent pour qu'il prenne current.goal si on le change explicitement.
+        if "target_os=windows" not in constraints:
+            constraints.append("target_os=windows")
 
     return Intent(goal=goal, constraints=constraints, horizon=horizon, expected_action=expected, salience=0.85, uncertainty=uncertainty)

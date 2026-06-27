@@ -14,6 +14,23 @@ def generate_transformations(intent: Intent, gap: GapVector, max_candidates: int
             value=0.5, coherence=0.8, actionability=0.7, risk=0.1, cost=0.2,
         ))
 
+    if gap.governance_gap >= 0.9:
+        candidates.append(
+            TransformationCandidate(
+                name="request_destructive_action_confirmation",
+                kind="safety_check",
+                content=(
+                    "Demander une confirmation explicite avant toute action destructive "
+                    "et proposer une sauvegarde préalable."
+                ),
+                value=0.95,
+                coherence=0.95,
+                actionability=0.8,
+                risk=0.05,
+                cost=0.2,
+            )
+        )
+
     candidates.append(TransformationCandidate(
         name="produce_local_plan",
         kind="plan",

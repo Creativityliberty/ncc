@@ -1,0 +1,13 @@
+{
+  "name": "long_task_01",
+  "objective": "Tester la préservation d’intention sur une tâche longue.",
+  "turns": [
+    "Créer NCC-V0 local pour Mac.",
+    "Ajouter installation, tests, docs, interprétation des résultats.",
+    "Ne pas oublier que le vrai but est NCC-LM."
+  ],
+  "expected_metrics": {
+    "IP_min": 0.75,
+    "GC_min": 1.0
+  }
+}

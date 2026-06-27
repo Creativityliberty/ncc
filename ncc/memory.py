@@ -1,42 +1,120 @@
 from __future__ import annotations
 
-import numpy as np
+from typing import Iterable
 
-from .schemas import CognitiveState, MemoryTrace, StableOutput
-
-
-def exponential_kernel(age: int, alpha: float = 0.2) -> float:
-    return float(np.exp(-alpha * max(age, 0)))
+from ncc.schemas import MemoryRecord
 
 
-def power_kernel(age: int, alpha: float = 0.8) -> float:
-    return float(1.0 / ((1 + max(age, 0)) ** alpha))
+MEMORY_KEYWORDS: dict[str, list[str]] = {
+    "target_os=mac": ["mac", "macos", "os x"],
+    "target_os=windows": ["windows", "wsl", "powershell"],
+    "local_first": ["local-first", "local first", "local"],
+    "include_tests_and_result_interpretation": [
+        "tests",
+        "test",
+        "pytest",
+        "rapport",
+        "résultats",
+        "resultats",
+        "interprétation",
+        "interpretation",
+    ],
+    "jsonl_traces": ["jsonl", "trace", "traces", "dataset"],
+    "ncc_lm_preparation": ["ncc-lm", "dataset", "fine-tuning", "modèle", "modele"],
+    "installation": ["installation", "install", "setup", "mac", "local"],
+}
 
 
-def hybrid_kernel(age: int, alpha: float = 0.2, beta: float = 0.8, mu: float = 0.5) -> float:
-    return float(mu * exponential_kernel(age, alpha) + (1 - mu) * power_kernel(age, beta))
+def normalize_text(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        return " ".join(normalize_text(v) for v in value).lower()
+    if isinstance(value, dict):
+        return " ".join(normalize_text(v) for v in value.values()).lower()
+    return str(value).lower()
 
 
-class MemoryEngine:
-    def __init__(self, window: int = 100) -> None:
-        self.window = window
+def extract_query_terms(text: str) -> set[str]:
+    normalized = normalize_text(text)
+    terms: set[str] = set()
 
-    def update(self, state: CognitiveState, stable: StableOutput) -> CognitiveState:
-        trace = MemoryTrace(
-            content=stable.selected.content,
-            kind="result",
-            importance=min(1.0, max(0.1, stable.score / 3.0)),
-            created_at_step=state.step,
-            metadata={"candidate": stable.selected.name, "score": stable.score},
-        )
-        state.memory.append(trace)
-        if len(state.memory) > self.window:
-            state.memory = state.memory[-self.window:]
-        return state
+    for constraint, keywords in MEMORY_KEYWORDS.items():
+        if any(keyword in normalized for keyword in keywords):
+            terms.add(constraint)
 
-    def weighted_memory_strength(self, state: CognitiveState) -> float:
-        total = 0.0
-        for tr in state.memory:
-            age = max(0, state.step - tr.created_at_step)
-            total += hybrid_kernel(age) * tr.importance
-        return float(total)
+    for raw in normalized.replace(".", " ").replace(",", " ").split():
+        if len(raw) >= 4:
+            terms.add(raw)
+
+    return terms
+
+
+def memory_record_score(record: MemoryRecord, query: str) -> float:
+    query_terms = extract_query_terms(query)
+    record_text = normalize_text(
+        {
+            "content": record.content,
+            "constraints": record.constraints,
+            "tags": record.tags,
+            "event_type": record.event_type,
+        }
+    )
+
+    if not query_terms:
+        return 0.0
+
+    hits = 0
+
+    for term in query_terms:
+        keywords = MEMORY_KEYWORDS.get(term, [term])
+        if any(keyword in record_text for keyword in keywords):
+            hits += 1
+
+    constraint_bonus = 0.25 * len(record.constraints)
+    salience_bonus = record.salience
+
+    return round(hits + constraint_bonus + salience_bonus, 3)
+
+
+class MemoryStore:
+    def __init__(self, records: list[MemoryRecord] | None = None):
+        self.records = records or []
+
+    def add(self, record: MemoryRecord) -> None:
+        self.records.append(record)
+
+    def search(self, query: str, limit: int = 3, min_score: float = 0.75) -> list[MemoryRecord]:
+        scored = [
+            (memory_record_score(record, query), record)
+            for record in self.records
+        ]
+
+        scored = [
+            (score, record)
+            for score, record in scored
+            if score >= min_score
+        ]
+
+        scored.sort(key=lambda item: item[0], reverse=True)
+
+        return [record for _, record in scored[:limit]]
+
+
+def build_memory_record(
+    *,
+    event_type: str,
+    content: str,
+    constraints: Iterable[str] | None = None,
+    tags: Iterable[str] | None = None,
+    salience: float = 0.5,
+    source_step: int | None = None,
+) -> MemoryRecord:
+    return MemoryRecord(
+        event_type=event_type,
+        content=content,
+        constraints=list(constraints or []),
+        tags=list(tags or []),
+        salience=salience,
+        source_step=source_step,
+    )

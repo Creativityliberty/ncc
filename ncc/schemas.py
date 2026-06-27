@@ -15,7 +15,7 @@ class Observation(BaseModel):
     raw: str
     spatial: list[str] = Field(default_factory=list)
     temporal: list[str] = Field(default_factory=list)
-    memorial: list[str] = Field(default_factory=list)
+    memorial: list[dict] = Field(default_factory=list)
     weight_spatial: float = 0.5
     weight_temporal: float = 0.25
     weight_memorial: float = 0.25
@@ -46,7 +46,7 @@ class GapVector(BaseModel):
 
 class TransformationCandidate(BaseModel):
     name: str
-    kind: Literal["answer", "clarify", "plan", "code", "test", "refuse", "memory", "policy"]
+    kind: Literal["answer", "clarify", "plan", "code", "test", "refuse", "memory", "policy", "safety_check"]
     content: str
     value: float = 0.0
     coherence: float = 0.0
@@ -65,13 +65,14 @@ class StableOutput(BaseModel):
     rationale: str
 
 
-class MemoryTrace(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid4()))
+class MemoryRecord(BaseModel):
+    event_type: str
     content: str
-    kind: Literal["event", "preference", "constraint", "result", "feedback", "knowledge_hint"] = "event"
-    importance: float = 0.5
-    created_at_step: int = 0
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    constraints: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    salience: float = 0.5
+    source_step: int | None = None
+    timestamp: str = Field(default_factory=now_iso)
 
 
 class KnowledgeClaim(BaseModel):
@@ -111,7 +112,7 @@ class Feedback(BaseModel):
 class CognitiveState(BaseModel):
     step: int = 0
     context: list[str] = Field(default_factory=list)
-    memory: list[MemoryTrace] = Field(default_factory=list)
+    memory: list[MemoryRecord] = Field(default_factory=list)
     knowledge: list[KnowledgeClaim] = Field(default_factory=list)
     policies: list[PolicyRule] = Field(default_factory=list)
     active_intent: Intent | None = None

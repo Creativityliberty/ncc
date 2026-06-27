@@ -1,0 +1,9 @@
+{
+  "name": "contradiction_01",
+  "objective": "Vérifier que la correction utilisateur modifie la mémoire de travail sans effacer une connaissance stable.",
+  "turns": [
+    "NCC utilise CoALA comme repère, pas comme limite.",
+    "Correction : ne copie pas CoALA, garde notre noyau centré intention.",
+    "Explique la différence NCC vs agent classique."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "feedback_01",
+  "objective": "Tester la consolidation d’un feedback correctif.",
+  "turns": [
+    "Fais un plan local.",
+    "Non, ajoute surtout la partie interprétation des résultats.",
+    "Refais le plan en gardant cette correction."
+  ]
+}

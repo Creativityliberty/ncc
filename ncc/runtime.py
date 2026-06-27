@@ -5,7 +5,6 @@ from .feedback import no_feedback
 from .gap import compute_gap
 from .intent import extract_intent
 from .knowledge import seed_knowledge
-from .memory import MemoryEngine
 from .observation import build_observation
 from .policy import seed_policies
 from .reasoner import reason
@@ -19,27 +18,25 @@ class NCCRuntime:
     def __init__(self, trace_path: str = "reports/traces.jsonl") -> None:
         self.state = CognitiveState()
         self.state = seed_knowledge(seed_policies(self.state))
-        self.memory_engine = MemoryEngine(window=100)
         self.trace_path = trace_path
 
     def step(self, raw: str, write_trace: bool = True) -> NCCTrace:
         self.state.step += 1
-        obs = build_observation(raw, self.state)
+        temporal_limit = getattr(self, "temporal_limit", None)
+        obs = build_observation(raw, self.state, temporal_limit=temporal_limit)
         current_intent = extract_intent(obs, self.state)
         
         # V0.1 — Cumulative Intent Preservation Patch
         if self.state.active_intent is not None:
-            # Note: need to import merge_intent at the top
             from .intent import merge_intent
             intent = merge_intent(self.state.active_intent, current_intent)
         else:
             intent = current_intent
             
         self.state.active_intent = intent
-        gap = compute_gap(intent, self.state)
+        gap = compute_gap(intent, self.state, user_input=raw)
         candidates = generate_transformations(intent, gap)
         stable = select_stable_output(candidates)
-        self.state = self.memory_engine.update(self.state, stable)
         reasoning = reason(intent, gap, stable, self.state)
         action = select_action(stable, self.state)
         
@@ -63,6 +60,51 @@ class NCCRuntime:
 
         feedback = no_feedback()
 
+        from ncc.memory import build_memory_record
+        step_index = len(self.state.context) + 1
+
+        intent_record = build_memory_record(
+            event_type="intent",
+            content=intent.goal,
+            constraints=intent.constraints,
+            tags=[
+                "intent",
+                intent.expected_action,
+                intent.horizon,
+            ],
+            salience=intent.salience,
+            source_step=step_index,
+        )
+        self.state.memory.append(intent_record)
+
+        transform_record = build_memory_record(
+            event_type="stable_output",
+            content=stable.selected.content,
+            constraints=intent.constraints,
+            tags=[
+                "transformation",
+                stable.selected.name,
+                stable.selected.kind,
+            ],
+            salience=stable.selected.value,
+            source_step=step_index,
+        )
+        self.state.memory.append(transform_record)
+
+        action_record = build_memory_record(
+            event_type="action",
+            content=str(action.payload),
+            constraints=intent.constraints,
+            tags=[
+                "action",
+                action.kind,
+                "allowed" if action.allowed else "blocked",
+            ],
+            salience=0.8 if action.allowed else 0.95,
+            source_step=step_index,
+        )
+        self.state.memory.append(action_record)
+
         self.state.context.append(raw)
         self.state.last_intent = intent
         self.state.last_gap = gap
@@ -82,7 +124,7 @@ class NCCRuntime:
                 "memory_size": len(self.state.memory),
                 "knowledge_size": len(self.state.knowledge),
                 "policy_size": len(self.state.policies),
-                "memory_strength": self.memory_engine.weighted_memory_strength(self.state),
+                "memory_strength": 0.0,
             },
         )
         if write_trace:
