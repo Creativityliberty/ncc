@@ -1,0 +1,10 @@
+{
+  "base_examples": 27,
+  "repair_examples": 1,
+  "repair_repeat": 3,
+  "merged_examples": 30,
+  "repair_ratio": 0.1,
+  "unsafe_assistant_findings": 0,
+  "output_path": "datasets/sft/ncc_sft_hf_text_v0_20_safety_merged.jsonl",
+  "verdict": "OK"
+}

@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13 exp14 exp15 exp16
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13 exp14 exp15 exp16 exp17
 
 quality: exp7
 
@@ -72,6 +72,9 @@ exp15:
 
 exp16:
 	. .venv/bin/activate && python experiments/exp_16_safety_regression_repair_pack.py
+
+exp17:
+	. .venv/bin/activate && python experiments/exp_17_safety_repair_sft_merge_refinetune.py
 
 hf-doctor:
 	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
