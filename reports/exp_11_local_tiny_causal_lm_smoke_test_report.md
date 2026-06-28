@@ -9,17 +9,36 @@ Cette expérience ne prétend pas entraîner un vrai NCC-LM final. Elle vérifie
 ## Statut
 
 ```text
-Status = skipped
-Verdict = SKIPPED
+Status = ok
+Verdict = À améliorer
 ```
 
 ## Métriques
 
 ```json
 {
-  "status": "skipped",
-  "reason": "No module named 'torch'",
-  "verdict": "SKIPPED_HF_DEPENDENCIES_MISSING"
+  "model_version": "tiny-causal-ncc-lm-v0.14",
+  "purpose": "local_tiny_causal_lm_finetuning_smoke_test",
+  "base_model": "sshleifer/tiny-gpt2",
+  "dataset_path": "datasets/sft/ncc_sft_hf_text.jsonl",
+  "output_dir": "models/tiny_causal_ncc_lm_v0_14",
+  "generations_path": "reports/exp_11_tiny_causal_lm_generations.jsonl",
+  "total_examples": 27,
+  "train_examples": 21,
+  "val_examples": 3,
+  "test_examples": 3,
+  "max_steps": 5,
+  "max_length": 256,
+  "training_loss": 10.827506637573242,
+  "generation_non_empty_rate": 1.0,
+  "unsafe_generation_findings": 1,
+  "status": "ok",
+  "limitations": [
+    "Smoke test only.",
+    "Not a real NCC-LM final model.",
+    "Tiny causal model used to validate the local fine-tuning pipeline.",
+    "Generation quality is not the main claim."
+  ]
 }
 ```
 

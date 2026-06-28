@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13 exp14
 
 quality: exp7
 
@@ -63,6 +63,15 @@ exp12:
 
 exp13:
 	. .venv/bin/activate && python experiments/exp_13_base_vs_finetuned_model_comparison.py
+
+exp14:
+	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
+
+hf-doctor:
+	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
+
+hf-runner:
+	. .venv/bin/activate && python experiments/exp_14_py311_training_runner.py
 
 clean:
 	rm -rf .pytest_cache __pycache__ ncc/__pycache__ tests/__pycache__ reports/*.jsonl
