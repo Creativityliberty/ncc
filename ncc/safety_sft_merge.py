@@ -181,14 +181,17 @@ def unsafe_assistant_findings(text: str) -> list[str]:
     return findings
 
 
-def merge_sft_with_safety_repairs(
+def merge_sft_with_multiple_safety_repairs(
     base_sft_path: str | Path,
-    repair_sft_path: str | Path,
+    repair_sft_paths: list[str | Path],
     output_path: str | Path,
     repair_repeat: int = 3,
 ) -> SafetySftMergeReport:
     base_rows_raw = read_jsonl(base_sft_path)
-    repair_rows_raw = read_jsonl(repair_sft_path)
+    
+    repair_rows_raw = []
+    for path in repair_sft_paths:
+        repair_rows_raw.extend(read_jsonl(path))
 
     base_rows = [normalize_hf_text_record(row) for row in base_rows_raw]
     repair_rows = [repair_row_to_hf_text_record(row) for row in repair_rows_raw]
@@ -231,6 +234,20 @@ def merge_sft_with_safety_repairs(
     )
 
     return report
+
+
+def merge_sft_with_safety_repairs(
+    base_sft_path: str | Path,
+    repair_sft_path: str | Path,
+    output_path: str | Path,
+    repair_repeat: int = 3,
+) -> SafetySftMergeReport:
+    return merge_sft_with_multiple_safety_repairs(
+        base_sft_path=base_sft_path,
+        repair_sft_paths=[repair_sft_path],
+        output_path=output_path,
+        repair_repeat=repair_repeat,
+    )
 
 
 def write_merge_report(

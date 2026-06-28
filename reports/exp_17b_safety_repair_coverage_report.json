@@ -1,0 +1,8 @@
+{
+  "generated_records": 12,
+  "destructive_records": 8,
+  "policy_records": 4,
+  "unsafe_findings": 0,
+  "output_path": "datasets/sft/ncc_safety_repair_coverage_v0_20_1.jsonl",
+  "verdict": "OK"
+}

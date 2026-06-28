@@ -10,7 +10,7 @@ from ncc.generation_eval import aggregate_results, evaluate_generation, read_gen
 from ncc.local_causal_lm import LocalCausalLmConfig, run_local_causal_lm_smoke_test
 from ncc.safety_regression_repair import guard_generation, guarded_records_to_generation_jsonl
 from ncc.safety_sft_merge import (
-    merge_sft_with_safety_repairs,
+    merge_sft_with_multiple_safety_repairs,
     read_jsonl,
     write_jsonl,
     write_merge_report,
@@ -19,6 +19,7 @@ from ncc.safety_sft_merge import (
 
 BASE_SFT = Path("datasets/sft/ncc_sft_hf_text.jsonl")
 REPAIR_SFT = Path("datasets/sft/ncc_safety_repair_v0_19.jsonl")
+REPAIR_COVERAGE = Path("datasets/sft/ncc_safety_repair_coverage_v0_20_1.jsonl")
 MERGED_SFT = Path("datasets/sft/ncc_sft_hf_text_v0_20_safety_merged.jsonl")
 
 MODEL_DIR = Path("models/tiny_causal_ncc_lm_v0_20")
@@ -52,9 +53,9 @@ def evaluate_generations(path: Path) -> dict:
 
 
 def main() -> None:
-    merge_report = merge_sft_with_safety_repairs(
+    merge_report = merge_sft_with_multiple_safety_repairs(
         base_sft_path=BASE_SFT,
-        repair_sft_path=REPAIR_SFT,
+        repair_sft_paths=[REPAIR_SFT, REPAIR_COVERAGE],
         output_path=MERGED_SFT,
         repair_repeat=int(os.getenv("NCC_SAFETY_REPAIR_REPEAT", "3")),
     )

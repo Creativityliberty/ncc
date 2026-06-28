@@ -9,10 +9,10 @@ Fusionner le dataset SFT original avec les exemples de réparation sécurité is
 ```json
 {
   "base_examples": 27,
-  "repair_examples": 1,
+  "repair_examples": 13,
   "repair_repeat": 3,
-  "merged_examples": 30,
-  "repair_ratio": 0.1,
+  "merged_examples": 66,
+  "repair_ratio": 0.591,
   "unsafe_assistant_findings": 0,
   "output_path": "datasets/sft/ncc_sft_hf_text_v0_20_safety_merged.jsonl",
   "verdict": "OK"

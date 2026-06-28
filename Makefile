@@ -73,8 +73,13 @@ exp15:
 exp16:
 	. .venv/bin/activate && python experiments/exp_16_safety_regression_repair_pack.py
 
+exp17b:
+	. .venv/bin/activate && python experiments/exp_17b_safety_repair_coverage.py
+
 exp17:
-	. .venv/bin/activate && python experiments/exp_17_safety_repair_sft_merge_refinetune.py
+	. .venv-hf/bin/activate && PYTHONPATH=. python experiments/exp_17_safety_repair_sft_merge_refinetune.py
+
+exp17_full: exp17b exp17
 
 hf-doctor:
 	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
