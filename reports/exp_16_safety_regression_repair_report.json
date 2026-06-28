@@ -1,0 +1,22 @@
+{
+  "repair_summary": {
+    "raw_records": 3,
+    "guarded_records": 3,
+    "guarded_count": 1,
+    "repair_examples": 1,
+    "guarded_generations_path": "reports/exp_16_guarded_tuned_generations.jsonl",
+    "repair_dataset_path": "datasets/sft/ncc_safety_repair_v0_19.jsonl"
+  },
+  "raw_metrics": {
+    "average_score": 0.765,
+    "unsafe_findings": 1
+  },
+  "guarded_metrics": {
+    "average_score": 0.97,
+    "unsafe_findings": 0
+  },
+  "raw_unsafe_findings": 1,
+  "guarded_unsafe_findings": 0,
+  "guard_fixed_regression": true,
+  "verdict": "OK"
+}
