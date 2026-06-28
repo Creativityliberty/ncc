@@ -32,7 +32,7 @@ exp6:
 
 dataset: exp6
 
-experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13 exp14
+experiments: exp exp2 exp2b exp2c exp3 exp4 exp5 exp6 exp7 exp8 exp8b exp9 exp10 exp11 exp12 exp13 exp14 exp15
 
 quality: exp7
 
@@ -66,6 +66,9 @@ exp13:
 
 exp14:
 	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
+
+exp15:
+	. .venv/bin/activate && python experiments/exp_15_real_generations_eval_rerun.py
 
 hf-doctor:
 	. .venv/bin/activate && python experiments/exp_14_real_hf_environment_doctor.py
